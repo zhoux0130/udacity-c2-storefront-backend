@@ -4,7 +4,7 @@
     "../src/tests/**/*[s]pec.ts"
   ],
   "helpers": [
-    "../src/tests/helpers/**/*.ts"
+    "../src/tests/helper/**/*.ts"
   ],
   "stopSpecOnExpectationFailure": false,
   "random": false
