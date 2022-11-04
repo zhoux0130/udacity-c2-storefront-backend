@@ -22,7 +22,7 @@ export class ProductStore {
     }
   }
 
-  async show(id: number): Promise<Product> {
+  async show(id: string): Promise<Product> {
     try{
       const conn = await Client.connect();
       const sql = 'SELECT * FROM products WHERE id = $1';

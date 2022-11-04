@@ -9,7 +9,8 @@ const productStore = new ProductStore()
 let testUserId: number;
 
 describe('Order Store Model', () => {
-  it('should have an getUserOrders method', async () => {
+
+  beforeAll(async() => {
     const user = {
       firstName:'Lily',
       lastName:'Choo',
@@ -33,8 +34,10 @@ describe('Order Store Model', () => {
       productId
     }
     await store.create(order)
-    expect(store.getUserOrders).toBeDefined();
+  })
 
+  it('should have an getUserOrders method', async () => {
+    expect(store.getUserOrders).toBeDefined();
   });
 
   it('should get test users orders', async () => {

@@ -7,6 +7,16 @@ const store = new ProductStore();
 const index = async (req: Request, res: Response) => {
   try{
     const products = await store.index();
+    res.send({products});
+  }catch(err){
+    res.status(400).send(err.message);
+  }
+}
+
+const show = async (req: Request, res: Response) => {
+  try{
+    const productId = req.params.id;
+    const products = await store.show(productId);
     res.send(products);
   }catch(err){
     res.status(400).send(err.message);
@@ -32,6 +42,7 @@ const create = async (req: Request, res: Response) => {
 const product_routes = (app: express.Application) => {
   app.get("/products", index);
   app.post("/products", verifyAuthToken, create);
+  app.get("/products/:id", show);
 }
 
 export default product_routes;
