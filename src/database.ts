@@ -21,7 +21,7 @@ if (ENV === "dev") {
     Client = new Pool({
         host: DB_HOST,
         database: DB_NAME,
-        port: 55001,
+        ...(DB_PORT && { port: parseInt(DB_PORT) }),
         user: DB_USER,
         password: DB_PASSWORD
     });
@@ -36,6 +36,7 @@ if (ENV === "dev") {
     Client = new Pool({
         host: DB_HOST,
         database: DB_NAME,
+        ...(DB_PORT && { port: parseInt(DB_PORT) }),
         user: DB_USER,
         password: DB_PASSWORD
     });
