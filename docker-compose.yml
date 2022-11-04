@@ -5,8 +5,7 @@ services:
   postgres:
     image: postgres:latest
     environment:
-      - POSTGRES_PASSWORD=postgrespw
-      - DATABASE_URL: "postgres://postgres:postgrespw@postgres:5432"
+      - .evn
     ports:
       - 5432:5432
     volumes:

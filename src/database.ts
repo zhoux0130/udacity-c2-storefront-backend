@@ -1,5 +1,5 @@
 
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 import { Pool } from "pg";
 
 dotenv.config();
@@ -41,7 +41,5 @@ if (ENV === "dev") {
         password: DB_PASSWORD
     });
 }
-
-console.log(Client);
 
 export default Client;
