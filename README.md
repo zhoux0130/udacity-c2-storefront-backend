@@ -31,6 +31,28 @@ Table: Books (id:varchar, title:varchar, author:varchar, published_year:varchar,
 
 ### 2.  DB Creation and Migrations
 
+Create 3 tables with sqls
+```
+CREATE TABLE products (id serial primary key, name varchar(50), price float, category integer);
+
+CREATE TABLE users (id serial primary key, first_name varchar(10), last_name varchar(10),  password varchar(100));
+
+CREATE TABLE orders(
+   id INT GENERATED ALWAYS AS IDENTITY,
+   quantity INTEGER,
+   status VARCHAR(10) NOT NULL,
+   user_id INTEGER,
+   product_id INTEGER,
+   PRIMARY KEY(id),
+   CONSTRAINT fk_user
+      FOREIGN KEY(user_id) 
+	  REFERENCES users(id),
+   CONSTRAINT fk_product
+      FOREIGN KEY(product_id) 
+	  REFERENCES products(id)  
+);
+```
+
 Now that you have the structure of the databse outlined, it is time to create the database and migrations. Add the npm packages dotenv and db-migrate that we used in the course and setup your Postgres database. If you get stuck, you can always revisit the database lesson for a reminder. 
 
 You must also ensure that any sensitive information is hashed with bcrypt. If any passwords are found in plain text in your application it will not pass.

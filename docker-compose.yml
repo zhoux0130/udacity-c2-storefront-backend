@@ -1,14 +1,16 @@
-version: '3.9'
+volumes:
+  data:
 
 services:
   postgres:
-    image: postgres
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=postgrespw
+      - DATABASE_URL: "postgres://postgres:postgrespw@postgres:5432"
     ports:
-      - '5432:5432'
-    env_file:
-      - .env
+      - 5432:5432
     volumes:
-      - 'postgres:/var/lib/postgresql/data'
+      - data:/var/lib/postgresql
+  myapp:
+    image:postgres-anGT
 
-volumes:
-  postgres:
