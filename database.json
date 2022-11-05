@@ -1,8 +1,11 @@
 {
     "dev": {
       "driver": "pg",
-      "host": "dev-hulk.lesscap.com",
-      "database": "postgres"
+      "host": "localhost",
+      "database": "postgres",
+      "user": "postgres",
+      "password": "postgrespw",
+      "port": 55002
     },
     "test": {
       "driver": "pg",
