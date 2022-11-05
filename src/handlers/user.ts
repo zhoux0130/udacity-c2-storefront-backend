@@ -7,6 +7,7 @@ const store = new UserStore();
 
 const index = async (_req: Request, res: Response) => {
   const users = await store.index()
+
   res.json(users);
 }
 
@@ -26,7 +27,7 @@ const create = async (_req: Request, res: Response) => {
   try{
     const newUser = await store.create(user);
     var token = jwt.sign({ user: newUser}, process.env.TOKEN_SECRET!);
-  
+
     res.json(token);
   }catch(err){
     res.status(404);

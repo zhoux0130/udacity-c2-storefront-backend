@@ -1,76 +1,179 @@
 # Storefront Backend Project
 
-## Getting Started
+## Setup
 
-This repo contains a basic Node and Express app to get you started in constructing an API. To get started, clone this repo and run `yarn` in your terminal at the project root.
+### PostgreSQL
 
-## Required Technologies
-Your application must make use of the following libraries:
-- Postgres for the database
-- Node/Express for the application logic
-- dotenv from npm for managing environment variables
-- db-migrate from npm for migrations
-- jsonwebtoken from npm for working with JWTs
-- jasmine from npm for testing
+Make sure that you habe PostgreSQL installed
 
-## Steps to Completion
-
-### 1. Plan to Meet Requirements
-
-In this repo there is a `REQUIREMENTS.md` document which outlines what this API needs to supply for the frontend, as well as the agreed upon data shapes to be passed between front and backend. This is much like a document you might come across in real life when building or extending an API. 
-
-Your first task is to read the requirements and update the document with the following:
-- Determine the RESTful route for each endpoint listed. Add the RESTful route and HTTP verb to the document so that the frontend developer can begin to build their fetch requests.    
-**Example**: A SHOW route: 'blogs/:id' [GET] 
-
-- Design the Postgres database tables based off the data shape requirements. Add to the requirements document the database tables and columns being sure to mark foreign keys.   
-**Example**: You can format this however you like but these types of information should be provided
-Table: Books (id:varchar, title:varchar, author:varchar, published_year:varchar, publisher_id:string[foreign key to publishers table], pages:number)
-
-**NOTE** It is important to remember that there might not be a one to one ratio between data shapes and database tables. Data shapes only outline the structure of objects being passed between frontend and API, the database may need multiple tables to store a single shape. 
-
-### 2.  DB Creation and Migrations
-
-Create 3 tables with sqls
 ```
-CREATE TABLE products (id serial primary key, name varchar(50), price float, category integer);
-
-CREATE TABLE users (id serial primary key, first_name varchar(10), last_name varchar(10),  password varchar(100));
-
-CREATE TABLE orders(
-   id INT GENERATED ALWAYS AS IDENTITY,
-   quantity INTEGER,
-   status VARCHAR(10) NOT NULL,
-   user_id INTEGER,
-   product_id INTEGER,
-   PRIMARY KEY(id),
-   CONSTRAINT fk_user
-      FOREIGN KEY(user_id) 
-	  REFERENCES users(id),
-   CONSTRAINT fk_product
-      FOREIGN KEY(product_id) 
-	  REFERENCES products(id)  
-);
+postgres --version
 ```
 
-Now that you have the structure of the databse outlined, it is time to create the database and migrations. Add the npm packages dotenv and db-migrate that we used in the course and setup your Postgres database. If you get stuck, you can always revisit the database lesson for a reminder. 
+Start Postgres with
 
-You must also ensure that any sensitive information is hashed with bcrypt. If any passwords are found in plain text in your application it will not pass.
+```
+(sudo) su - postgres
+```
 
-### 3. Models
+and enter the Postgres terminal with
 
-Create the models for each database table. The methods in each model should map to the endpoints in `REQUIREMENTS.md`. Remember that these models should all have test suites and mocks.
+```
+psql postgres
+```
 
-### 4. Express Handlers
+Create the database
 
-Set up the Express handlers to route incoming requests to the correct model method. Make sure that the endpoints you create match up with the enpoints listed in `REQUIREMENTS.md`. Endpoints must have tests and be CORS enabled. 
+```
+CREATE DATABASE <db_name>;
+```
 
-### 5. JWTs
+Create a user and grant access to this database
 
-Add JWT functionality as shown in the course. Make sure that JWTs are required for the routes listed in `REQUIUREMENTS.md`.
+```
+CREATE USER <user_name> WITH PASSWORD '<password>';
 
-### 6. QA and `README.md`
+GRANT ALL PRIVILEGES ON DATABASE <db_name> TO <user_name>;
+```
 
-Before submitting, make sure that your project is complete with a `README.md`. Your `README.md` must include instructions for setting up and running your project including how you setup, run, and connect to your database. 
+Connect to the database
 
-Before submitting your project, spin it up and test each endpoint. If each one responds with data that matches the data shapes from the `REQUIREMENTS.md`, it is ready for submission!
+```
+\c <db_name>
+```
+
+Display the tables (no relations should be found)
+
+```
+\dt
+```
+
+Now that you can create a database and a user, you should create one database (with a user) for production and one database (with a user - you can use the same as for the dev db) for testing.
+
+.env file (from [dotenv](https://www.npmjs.com/package/dotenv)) accordingly:
+
+```
+
+DB_HOST = "<where you DB is hosted (for development usually localhost)>"
+DB_NAME = "<db_name>"
+DB_USER = "<user_name>"
+DB_PORT = "<db_port>"
+DB_PASSWORD = "<password>"
+TEST_DB_NAME = "<db_name>" (for tests)
+```
+
+Other environment variables that are necessary
+
+```
+ENV = "dev" (run with dev db or test db)
+BCRYPT_PW = "<write some string to pepper your encryption>"
+SALT_ROUNDS = "<write an integer to say how many times the pw should be hashed>"
+TOKEN_SECRET = "<write a string for the JWT secret>"
+```
+
+Install the node modules
+
+```
+npm install
+```
+
+Load the database schema with
+
+```
+db-migrate up
+```
+
+Run the jasmine test  
+
+```
+npm run test
+```
+
+
+you can start this API with
+
+```
+npm run watch
+```
+
+The server runs on localhost:3000 on default.
+
+## Routes and Database Schemas
+
+Show and Index routes never require a token.
+Create, Update and Delete routes usually do.
+
+### /users
+
+The user consists out of
+- id 
+- first_name
+- last_name
+- password
+
+Creating the user doesn't need a token. You can get the token of this user
+```
+curl -H "Content-Type: application/json" -X POST -d '{"fisrtName":"Ada","lastName":"Choo","password":"123"}' http://localhost:3000/users
+```
+
+The passwords gets hashed with bcrypt.
+
+Get user info 
+
+(GET /users/:id) you also get the user by id, this method needs token
+
+```
+curl -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxMDksImZpcnN0X25hbWUiOm51bGwsImxhc3RfbmFtZSI6IkNob28iLCJwYXNzd29yZCI6IiQyYiQxMCRxOXNUVkh5bWRyd2xrYXJHcnQ2Z051MTFFSHlIUGUxY2pTMU5zNDBDSXI4cEs2Y2hGREZ5SyJ9LCJpYXQiOjE2Njc2Mzk2OTh9.D2D7TBhLy3h5Sz-Fm4boP39VR0ZT-rt-6xVngqjCMTY" -X GET http://localhost:3000/users/{id}
+```
+
+Get all users info 
+
+(GET /users) you also get all the users, this method needs token
+
+```
+curl -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxMDksImZpcnN0X25hbWUiOm51bGwsImxhc3RfbmFtZSI6IkNob28iLCJwYXNzd29yZCI6IiQyYiQxMCRxOXNUVkh5bWRyd2xrYXJHcnQ2Z051MTFFSHlIUGUxY2pTMU5zNDBDSXI4cEs2Y2hGREZ5SyJ9LCJpYXQiOjE2Njc2Mzk2OTh9.D2D7TBhLy3h5Sz-Fm4boP39VR0ZT-rt-6xVngqjCMTY" -X GET http://localhost:3000/users
+```
+
+### /products
+
+The product consists out of
+- id
+- name
+- price
+- category
+
+The usual CRUD routes are implemented, you need a user token for all manipulating routes.
+
+create the product 
+```
+curl -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxMDksImZpcnN0X25hbWUiOm51bGwsImxhc3RfbmFtZSI6IkNob28iLCJwYXNzd29yZCI6IiQyYiQxMCRxOXNUVkh5bWRyd2xrYXJHcnQ2Z051MTFFSHlIUGUxY2pTMU5zNDBDSXI4cEs2Y2hGREZ5SyJ9LCJpYXQiOjE2Njc2Mzk2OTh9.D2D7TBhLy3h5Sz-Fm4boP39VR0ZT-rt-6xVngqjCMTY" -X POST http://localhost:3000/products
+```
+
+
+### /orders
+
+The order consists out of
+- id
+- user_id
+- status
+
+The order-product consists out of 
+- id
+- order_id
+- product_id
+-quantity
+  
+The order stores orders connected to a specific users and saves the current status (active or finished).
+You can create the order (we also create the order-product together) by call the post method /orders
+
+```
+curl -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxMDksImZpcnN0X25hbWUiOm51bGwsImxhc3RfbmFtZSI6IkNob28iLCJwYXNzd29yZCI6IiQyYiQxMCRxOXNUVkh5bWRyd2xrYXJHcnQ2Z051MTFFSHlIUGUxY2pTMU5zNDBDSXI4cEs2Y2hGREZ5SyJ9LCJpYXQiOjE2Njc2Mzk2OTh9.D2D7TBhLy3h5Sz-Fm4boP39VR0ZT-rt-6xVngqjCMTY" -X POST -d '{"userId":1,"quantity":5,"productId":1,"status":"active"}' http://localhost:3000/orders
+```
+
+You can also get the user's all orders by the method /orders?userId={id}
+you need a user token for all manipulating routes.
+
+```
+curl -H "Content-Type: application/json" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoxMDksImZpcnN0X25hbWUiOm51bGwsImxhc3RfbmFtZSI6IkNob28iLCJwYXNzd29yZCI6IiQyYiQxMCRxOXNUVkh5bWRyd2xrYXJHcnQ2Z051MTFFSHlIUGUxY2pTMU5zNDBDSXI4cEs2Y2hGREZ5SyJ9LCJpYXQiOjE2Njc2Mzk2OTh9.D2D7TBhLy3h5Sz-Fm4boP39VR0ZT-rt-6xVngqjCMTY" -X GET http://localhost:3000/orders?userId=1
+```
+

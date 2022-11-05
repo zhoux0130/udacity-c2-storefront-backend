@@ -10,6 +10,7 @@ const verifyAuthToken = (req: express.Request, res: express.Response, next: expr
         }
         const token = authorizationHeader.split(' ')[1];
         res.locals.decoded = jwt.verify(token, process.env.TOKEN_SECRET as jwt.Secret);
+
         next();
     } catch (error) {
         res.status(401).send(error.message);

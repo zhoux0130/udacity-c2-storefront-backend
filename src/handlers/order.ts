@@ -10,7 +10,7 @@ const getUserOrders = async (request: Request, response: Response) => {
   response.send({ orders });
 }
 
-const create = async (request: Request, response: Response) => {
+const createOrder = async (request: Request, response: Response) => {
   try{
     const orderModel: Order = {
       quantity: request.body.quantity,
@@ -19,7 +19,7 @@ const create = async (request: Request, response: Response) => {
       productId: request.body.productId
     };
 
-    const order = await store.create(orderModel);
+    const order = await store.createOrder(orderModel);
     response.send({ order });
   }catch(err){
     response.status(401);
@@ -29,7 +29,7 @@ const create = async (request: Request, response: Response) => {
 
 const order_routes = (app: Application) => {
   app.get('/orders', verifyAuthToken, getUserOrders);
-  app.post('/orders', verifyAuthToken, create);
+  app.post('/orders', verifyAuthToken, createOrder);
 }
 
 export default order_routes;
