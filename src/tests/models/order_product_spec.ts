@@ -15,7 +15,7 @@ describe('Order Product Store Model', () => {
     let order: Order;
 
     beforeAll(async () => {
-        const user = {
+          const user = {
             firstName:'Lily',
             lastName:'Choo',
             password:'123'

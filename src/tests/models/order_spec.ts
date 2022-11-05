@@ -12,9 +12,9 @@ describe('Order Store Model', () => {
 
   beforeAll(async() => {
     const user = {
-      firstName:'Lily',
-      lastName:'Choo',
-      password:'123'
+      firstName:'Ada05',
+      lastName:'Choo05',
+      password:'12305'
     }
     const userResult = await userStore.create(user);
     testUserId = userResult.id!;
@@ -33,7 +33,7 @@ describe('Order Store Model', () => {
       userId: testUserId,
       productId
     }
-    await store.create(order)
+    const orderResult = await store.createOrder(order) // 并且创建好了关联关系
   })
 
   it('should have an getUserOrders method', async () => {

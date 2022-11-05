@@ -15,11 +15,16 @@ export class OrderStore {
   async getUserOrders(userId: string): Promise<Order[]> {
     try {
       const conn = await Client.connect();
-      const sql = `SELECT * FROM orders WHERE user_id=${userId};`;
+      const sql = `SELECT order_id, name, price, quantity, status, user_id FROM orders 
+          INNER JOIN order_products ON id(orders)=order_id 
+          INNER JOIN products ON product_id=id(products) 
+          INNER JOIN users ON user_id=id(users) 
+          WHERE user_id=${userId};`
+
 
       const result = await conn.query(sql);
-
       conn.release()
+
       return result.rows
     } catch (err) {
         throw new Error(`Could not find order ${userId}. Error: ${err}`)
